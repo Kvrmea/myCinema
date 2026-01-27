@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY CINEMA - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #141414; color: white; }
+        .netflix-red { color: #E50914; }
+        .netflix-bg-red { background-color: #E50914; }
+        .card:hover { transform: scale(1.05); transition: 0.3s; }
+    </style>
+</head>
+<body>
+    <nav class="flex items-center justify-between px-10 py-5 bg-black sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <h1 class="text-3xl font-bold netflix-red tracking-tighter">MY CINEMA</h1>
+            <ul class="flex gap-5 text-sm font-light text-gray-300">
+                <li><a href="index.html" class="hover:text-white font-bold text-white">Accueil</a></li>
+                <li><a href="movies.html" class="hover:text-white">Films</a></li>
+                <li><a href="rooms.html" class="hover:text-white">Salles</a></li>
+                <li><a href="planning.html" class="hover:text-white">Planning</a></li>
+            </ul>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-sm">Gérant</span>
+            <div class="w-8 h-8 bg-blue-500 rounded"></div>
+        </div>
+    </nav>
+
+    <main class="px-10 py-10">
+        <h2 class="text-2xl font-semibold mb-6">Films à l'affiche</h2>
+        
+        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <p class="text-gray-500">Chargement des films...</p>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
