@@ -24,4 +24,25 @@ class Movie {
         $stmt->execute();
         return $stmt;
     }
+
+    public function create($data) {
+        $query = "INSERT INTO " . $this->table_name . " 
+              SET title=:title, description=:description, duration=:duration, 
+                  release_year=:release_year, genre=:genre, director=:director";
+
+        $stmt = $this->conn->prepare($query);
+
+        // Protection contre les injections
+        $stmt->bindParam(":title", $data['title']);
+        $stmt->bindParam(":description", $data['description']);
+        $stmt->bindParam(":duration", $data['duration']);
+        $stmt->bindParam(":release_year", $data['release_year']);
+        $stmt->bindParam(":genre", $data['genre']);
+        $stmt->bindParam(":director", $data['director']);
+
+        if($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
 }
