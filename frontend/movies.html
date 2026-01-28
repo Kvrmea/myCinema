@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>MY CINEMA - Gestion des Films</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #141414; color: white; }
+        .netflix-bg-red { background-color: #E50914; }
+    </style>
+</head>
+<body>
+    <nav class="flex items-center justify-between px-10 py-5 bg-black sticky top-0 z-50">
+        <h1 class="text-3xl font-bold text-[#E50914] tracking-tighter">MY CINEMA</h1>
+        <ul class="flex gap-5 text-sm font-light text-gray-300">
+            <li><a href="index.html" class="hover:text-white">Accueil</a></li>
+            <li><a href="movies.html" class="hover:text-white font-bold text-white">Films</a></li>
+            <li><a href="rooms.html" class="hover:text-white">Salles</a></li>
+        </ul>
+    </nav>
+
+    <main class="px-10 py-10">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">Gestion des Films</h2>
+            <button onclick="toggleModal()" class="netflix-bg-red px-4 py-2 rounded font-bold hover:bg-red-700 transition">+ Ajouter un film</button>
+        </div>
+
+        <div class="bg-zinc-900 rounded-lg overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-zinc-800 text-gray-400 uppercase text-xs">
+                        <th class="p-4">Titre</th>
+                        <th class="p-4">Genre</th>
+                        <th class="p-4">Année</th>
+                        <th class="p-4">Durée</th>
+                        <th class="p-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="movie-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 p-8 rounded-lg w-full max-w-md border border-zinc-700">
+            <h3 class="text-xl font-bold mb-4">Nouveau Film</h3>
+            <form id="add-movie-form" class="space-y-4">
+                <input type="text" id="title" placeholder="Titre" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none focus:border-red-500" required>
+                <div class="flex gap-4">
+                    <input type="number" id="release_year" placeholder="Année" class="w-1/2 bg-zinc-800 p-2 rounded border border-zinc-600" required>
+                    <input type="number" id="duration" placeholder="Durée (min)" class="w-1/2 bg-zinc-800 p-2 rounded border border-zinc-600" required>
+                </div>
+                <input type="text" id="genre" placeholder="Genre" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600">
+                <input type="text" id="director" placeholder="Réalisateur" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600">
+                <textarea id="description" placeholder="Description" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600"></textarea>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="toggleModal()" class="text-gray-400 hover:text-white">Annuler</button>
+                    <button type="submit" class="netflix-bg-red px-6 py-2 rounded font-bold">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/movies.js"></script>
+</body>
+</html>
