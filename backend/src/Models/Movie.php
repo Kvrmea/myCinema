@@ -45,4 +45,20 @@ class Movie {
         }
         return false;
     }
+
+    public function delete($id) {
+        $id = (int)$id;
+        
+        $query = "DELETE FROM movies WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        
+        // On lie le paramètre
+        $stmt->bindParam(":id", $id, \PDO::PARAM_INT);
+
+        if($stmt->execute()) {
+            // On vérifie si une ligne a VRAIMENT été supprimée
+            return $stmt->rowCount() > 0;
+        }
+        return false;
+    }
 }

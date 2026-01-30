@@ -45,4 +45,36 @@ class MovieController {
             echo json_encode(["message" => "Données incomplètes."], JSON_UNESCAPED_UNICODE);
         }
     }
+
+    // public function delete() {
+    //     if (isset($_GET['id'])) {
+    //         $movie = new Movie($this->db);
+    //         if ($movie->delete($_GET['id'])) {
+    //             http_response_code(200);
+    //             echo json_encode(["message" => "Film supprimé."], JSON_UNESCAPED_UNICODE);
+    //         } else {
+    //             http_response_code(400);
+    //             echo json_encode(["message" => "Suppression impossible (film lié à une séance)."], JSON_UNESCAPED_UNICODE);
+    //         }
+    //     }
+    // }
+
+    public function delete() {
+        $id = $_GET['id'] ?? null;
+
+        if($id) {
+            $movie = new Movie($this->db);
+            if($movie->delete($id)) {
+                http_response_code(200);
+                echo json_encode(["message" => "Film supprimé."], JSON_UNESCAPED_UNICODE);
+            } else {
+                http_response_code(400);
+                // On affiche l'ID pour vérifier s'il est vide ou incorrect
+                echo json_encode(["message" => "Échec SQL pour l'ID : " . $id], JSON_UNESCAPED_UNICODE);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(["message" => "ID manquant dans l'URL."], JSON_UNESCAPED_UNICODE);
+        }
+    }
 }
