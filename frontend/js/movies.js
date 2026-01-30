@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/index.php";
+const API_URL = "http://localhost:8000/index.php?resource=movies";
 
 function toggleModal() {
     document.getElementById('modal').classList.toggle('hidden');
@@ -19,8 +19,7 @@ async function fetchMovies() {
                 <td class="p-4 text-gray-400">${movie.duration} min</td>
                 <td class="p-4">
                     <button class="text-blue-400 hover:underline mr-3">Modifier</button>
-                    <button class="text-red-500 hover:underline">Supprimer</button>
-                </td>
+                    <button onclick="deleteMovie(${movie.id})" class="text-red-500 hover:underline">Supprimer</button>
             </tr>
         `;
     });
@@ -55,3 +54,18 @@ document.getElementById('add-movie-form').addEventListener('submit', async (e) =
 });
 
 document.addEventListener('DOMContentLoaded', fetchMovies);
+
+async function deleteMovie(id) {
+    if (confirm("Es-tu sûr de vouloir supprimer ce film ?")) {
+        const response = await fetch(`${API_URL}&id=${id}`, { // Note le ?id=
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            fetchMovies();
+        } else {
+            const result = await response.json();
+            alert(result.message);
+        }
+    }
+}
