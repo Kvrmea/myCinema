@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY CINEMA - Gestion des Salles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #141414; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .netflix-red { color: #E50914; }
+        .netflix-bg-red { background-color: #E50914; }
+        /* Animation de zoom douce */
+        .room-card img { transition: transform 0.5s ease; }
+        .room-card:hover img { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <nav class="flex items-center justify-between px-10 py-5 bg-black sticky top-0 z-50 shadow-2xl">
+        <div class="flex items-center gap-10">
+            <h1 class="text-3xl font-bold netflix-red tracking-tighter">MY CINEMA</h1>
+            <ul class="flex gap-5 text-sm font-light text-gray-300">
+                <li><a href="index.html" class="hover:text-white transition">Accueil</a></li>
+                <li><a href="movies.html" class="hover:text-white transition">Films</a></li>
+                <li><a href="rooms.html" class="text-white font-bold border-b-2 border-red-600 pb-1">Salles</a></li>
+                <li><a href="planning.html" class="hover:text-white transition">Planning</a></li>
+            </ul>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="w-8 h-8 bg-blue-600 rounded-sm"></div>
+        </div>
+    </nav>
+
+    <main class="px-10 py-12">
+        <header class="flex justify-between items-end mb-10">
+            <div>
+                <p class="text-gray-400 text-sm uppercase tracking-widest mb-1">Configuration</p>
+                <h2 class="text-4xl font-bold">Nos Salles</h2>
+            </div>
+            <button class="netflix-bg-red px-6 py-2.5 rounded text-sm font-bold hover:bg-red-700 transition duration-300 shadow-lg">
+                + AJOUTER UNE SALLE
+            </button>
+        </header>
+
+        <div id="rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="animate-pulse bg-zinc-800 h-64 rounded-lg"></div>
+            <div class="animate-pulse bg-zinc-800 h-64 rounded-lg"></div>
+            <div class="animate-pulse bg-zinc-800 h-64 rounded-lg"></div>
+        </div>
+    </main>
+
+    <script src="js/rooms.js"></script>
+</body>
+</html>

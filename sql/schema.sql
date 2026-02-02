@@ -39,3 +39,11 @@ CREATE TABLE screenings (
     CONSTRAINT fk_movie FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE RESTRICT,
     CONSTRAINT fk_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+ALTER TABLE rooms ADD COLUMN image_url VARCHAR(255) DEFAULT 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4';
+
+-- salles avec des images stylées (Unsplash)
+INSERT INTO rooms (name, capacity, image_url) VALUES 
+('Grande Salle IMAX', 300, 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba'),
+('Salle Dolby Atmos', 150, 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4'),
+('Salle VIP Lounge', 50, 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f');
