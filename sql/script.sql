@@ -47,3 +47,5 @@ INSERT INTO rooms (name, capacity, image_url) VALUES
 ('Grande Salle IMAX', 300, 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba'),
 ('Salle Dolby Atmos', 150, 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4'),
 ('Salle VIP Lounge', 50, 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f');
+
+UPDATE rooms SET image_url = 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4' WHERE name LIKE '%Dolby%';

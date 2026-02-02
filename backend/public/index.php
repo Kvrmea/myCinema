@@ -1,10 +1,10 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// Gestion du Preflight (indispensable pour les requêtes DELETE/POST depuis JS)
+// Gestion du Preflight (le navigateur envoie une requête OPTIONS avant le PUT)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -34,7 +34,9 @@ switch($resource) {
     case 'rooms':
         $controller = new RoomController($db);
         if ($method === 'GET') $controller->list();
-        // AJOUT PLUS tard des autres methodes
+        elseif ($method === 'POST') $controller->create();
+        elseif ($method === 'PUT') $controller->update();
+        elseif ($method === 'DELETE') $controller->delete();
         break;
 
     default:
