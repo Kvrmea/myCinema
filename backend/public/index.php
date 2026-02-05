@@ -38,6 +38,11 @@ switch($resource) {
         elseif ($method === 'PUT') $controller->update();
         elseif ($method === 'DELETE') $controller->delete();
         break;
+    
+    case 'screenings':
+        $controller = new ScreeningController($db);
+        if ($method === 'GET') $controller->list();
+        break;
 
     default:
         http_response_code(404);

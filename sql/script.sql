@@ -49,3 +49,14 @@ INSERT INTO rooms (name, capacity, image_url) VALUES
 ('Salle VIP Lounge', 50, 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f');
 
 UPDATE rooms SET image_url = 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4' WHERE name LIKE '%Dolby%';
+
+CREATE TABLE IF NOT EXISTS screenings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    movie_id INT NOT NULL,
+    room_id INT NOT NULL,
+    start_time DATETIME NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(id) CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) CASCADE
+);
+
+INSERT INTO screenings (movie_id, room_id, start_time) VALUES (1, 1, '2026-02-05 20:30:00');
