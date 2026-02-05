@@ -15,6 +15,7 @@ require_once __DIR__ . '/../autoload.php';
 use App\Core\Database;
 use App\Controllers\MovieController;
 use App\Controllers\RoomController;
+use App\Controllers\ScreeningController;
 
 $database = new Database();
 $db = $database->getConnection();
@@ -40,7 +41,7 @@ switch($resource) {
         break;
     
     case 'screenings':
-        $controller = new ScreeningController($db);
+        $controller = new ScreeningController($db); 
         if ($method === 'GET') $controller->list();
         break;
 

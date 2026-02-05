@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY CINEMA - Planning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #141414; color: white; font-family: 'Helvetica Neue', Arial, sans-serif; }
+        .netflix-red { color: #E50914; }
+        .netflix-bg-red { background-color: #E50914; }
+        .hour-glow { text-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
+        .timeline-line { border-left: 2px solid #333; }
+    </style>
+</head>
+<body>
+    <nav class="flex items-center justify-between px-10 py-5 bg-black sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <h1 class="text-3xl font-bold netflix-red tracking-tighter">MY CINEMA</h1>
+            <ul class="flex gap-5 text-sm font-light text-gray-300">
+                <li><a href="index.html" class="hover:text-white transition">Accueil</a></li>
+                <li><a href="movies.html" class="hover:text-white transition">Films</a></li>
+                <li><a href="rooms.html" class="hover:text-white transition">Salles</a></li>
+                <li><a href="planning.html" class="text-white font-bold border-b-2 border-red-600 pb-1">Planning</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="px-10 py-12 max-w-5xl mx-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h2 class="text-4xl font-bold mb-2">Programmation</h2>
+                <p class="text-gray-400">Gérez les séances et les horaires de diffusion.</p>
+            </div>
+            <button class="netflix-bg-red px-6 py-3 rounded font-bold hover:bg-red-700 transition shadow-lg">
+                + PROGRAMMER UNE SÉANCE
+            </button>
+        </header>
+
+        <div id="planning-container" class="relative timeline-line ml-4 pl-8 space-y-12">
+            </div>
+    </main>
+
+    <script src="js/planning.js"></script>
+</body>
+</html>
