@@ -1,107 +1,180 @@
 const API_URL = "http://localhost:8000/index.php?resource=movies";
 
+// --- GESTION DU MODAL ---
 function toggleModal() {
-    document.getElementById('modal').classList.toggle('hidden');
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.classList.toggle('hidden');
+        if (modal.classList.contains('hidden')) {
+            resetForm();
+        }
+    }
 }
 
-// fetchMovies accepte maintenant des filtres ---
+// --- CHARGEMENT DES FILMS (GRILLE) ---
 async function fetchMovies(genre = "", year = "") {
     let url = API_URL;
-    
-    // Si on a des filtres, on les ajoute à l'URL
     if (genre !== "") url += `&genre=${encodeURIComponent(genre)}`;
     if (year !== "") url += `&year=${encodeURIComponent(year)}`;
-
-    console.log("Appel API vers :", url);
 
     try {
         const response = await fetch(url);
         const movies = await response.json();
-        const tbody = document.getElementById('movie-table-body');
-        tbody.innerHTML = "";
+        const grid = document.getElementById('movie-grid');
+        if (!grid) return;
 
-        // Sécurité si aucun film n'est trouvé (retourne un tableau vide)
-        if (!Array.isArray(movies) || movies.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">Aucun film ne correspond à ces critères.</td></tr>`;
-            return;
-        }
+        grid.innerHTML = "";
 
         movies.forEach(movie => {
-            tbody.innerHTML += `
-                <tr class="border-t border-zinc-800 hover:bg-zinc-800 transition">
-                    <td class="p-4 font-semibold">${movie.title}</td>
-                    <td class="p-4 text-gray-400">${movie.genre}</td>
-                    <td class="p-4 text-gray-400">${movie.release_year}</td>
-                    <td class="p-4 text-gray-400">${movie.duration} min</td>
-                    <td class="p-4">
-                        <button class="text-blue-400 hover:underline mr-3">Modifier</button>
-                        <button onclick="deleteMovie(${movie.id})" class="text-red-500 hover:underline">Supprimer</button>
-                    </td>
-                </tr>
+            // IMAGE DE SECOURS : Unsplash par mot-clé (Titre du film)
+            const fallback = `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=500`;             
+            // Si l'URL est vide ou trop courte, on génère une image basée sur le titre
+            let posterUrl = movie.image_url;
+            if (!posterUrl || posterUrl.length < 10) {
+                posterUrl = `https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=500`;
+            }
+
+            grid.innerHTML += `
+                <div class="group relative bg-zinc-900 rounded-[2rem] overflow-hidden border border-zinc-800 hover:border-red-600 transition-all duration-500 shadow-2xl aspect-[2/3]">
+                    <img src="${posterUrl}" 
+                         alt="${movie.title}" 
+                         onerror="this.onerror=null; this.src='${fallback}';" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                        <h3 class="text-xl font-black italic uppercase tracking-tighter mb-1 text-white">${movie.title}</h3>
+                        <p class="text-red-500 text-[10px] font-black mb-4 uppercase tracking-[0.2em]">${movie.genre || 'Cinéma'} • ${movie.release_year}</p>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="editMovie(${movie.id})" class="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase hover:bg-red-600 hover:text-white transition">Modifier</button>
+                            <button onclick="deleteMovie(${movie.id})" class="bg-zinc-800/90 text-white p-3 rounded-xl hover:bg-red-600 transition">🗑️</button>
+                        </div>
+                    </div>
+                </div>
             `;
         });
     } catch (error) {
-        console.error("Erreur fetchMovies:", error);
+        console.error("Erreur d'affichage :", error);
     }
 }
 
-// --- AJOUT : Fonction pour lire les menus déroulants ---
-function applyFilters() {
-    const genre = document.getElementById('filter-genre').value;
-    const year = document.getElementById('filter-year').value;
-    fetchMovies(genre, year);
-}
+// --- LOGIQUE DU FORMULAIRE (AJOUT & MODIFICATION) ---
+let editMode = false;
+let currentMovieId = null;
 
-// --- AJOUT : Fonction reset ---
-function resetFilters() {
-    document.getElementById('filter-genre').value = "";
-    document.getElementById('filter-year').value = "";
-    fetchMovies();
-}
+const movieForm = document.getElementById('add-movie-form');
+if (movieForm) {
+    movieForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-// Ajouter un film 
-document.getElementById('add-movie-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+        const movieData = {
+            title: document.getElementById('title').value,
+            image_url: document.getElementById('poster_url').value,
+            release_year: document.getElementById('release_year').value,
+            duration: document.getElementById('duration').value,
+            genre: document.getElementById('genre').value,
+            director: document.getElementById('director').value,
+            description: document.getElementById('description').value
+        };
 
-    const movieData = {
-        title: document.getElementById('title').value,
-        release_year: document.getElementById('release_year').value,
-        duration: document.getElementById('duration').value,
-        genre: document.getElementById('genre').value,
-        director: document.getElementById('director').value,
-        description: document.getElementById('description').value
-    };
+        const method = editMode ? 'PUT' : 'POST';
+        if (editMode) movieData.id = currentMovieId;
 
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify(movieData)
+        try {
+            const response = await fetch(API_URL, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(movieData)
+            });
+
+            if (response.ok) {
+                toggleModal();
+                fetchMovies();
+                movieForm.reset();
+            } else {
+                alert("Erreur lors de l'enregistrement du film.");
+            }
+        } catch (error) {
+            console.error("Erreur submit:", error);
+        }
     });
+}
 
-    if (response.ok) {
-        toggleModal();
-        fetchMovies();
-        e.target.reset();
-    } else {
-        alert("Erreur lors de l'ajout");
+// --- FONCTION ÉDITION ---
+async function editMovie(id) {
+    try {
+        const response = await fetch(API_URL);
+        const movies = await response.json();
+        const movie = movies.find(m => m.id == id);
+
+        if (movie) {
+            editMode = true;
+            currentMovieId = id;
+
+            // Remplissage des champs
+            document.getElementById('title').value = movie.title;
+            document.getElementById('poster_url').value = movie.image_url || '';
+            document.getElementById('release_year').value = movie.release_year;
+            document.getElementById('duration').value = movie.duration;
+            document.getElementById('genre').value = movie.genre || '';
+            document.getElementById('director').value = movie.director || '';
+            document.getElementById('description').value = movie.description || '';
+
+            // Update UI Modal
+            document.getElementById('modal-title').innerText = "Modifier le Film";
+            document.getElementById('submit-btn').innerText = "Mettre à jour";
+            
+            toggleModal();
+        }
+    } catch (error) {
+        console.error("Erreur editMovie:", error);
     }
-});
+}
 
+// --- SUPPRESSION ---
+async function deleteMovie(id) {
+    if (confirm("Es-tu sûr de vouloir supprimer ce film ?")) {
+        try {
+            const response = await fetch(`${API_URL}&id=${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchMovies();
+            } else {
+                const result = await response.json();
+                alert(result.message || "Erreur lors de la suppression");
+            }
+        } catch (error) {
+            console.error("Erreur delete:", error);
+        }
+    }
+}
+
+// --- RÉINITIALISATION ---
+function resetForm() {
+    editMode = false;
+    currentMovieId = null;
+    if (movieForm) movieForm.reset();
+    document.getElementById('modal-title').innerText = "Nouveau Film";
+    document.getElementById('submit-btn').innerText = "Enregistrer";
+}
+
+// --- INITIALISATION ---
 document.addEventListener('DOMContentLoaded', () => {
     fetchMovies();
 });
 
-async function deleteMovie(id) {
-    if (confirm("Es-tu sûr de vouloir supprimer ce film ?")) {
-        const response = await fetch(`${API_URL}&id=${id}`, { 
-            method: 'DELETE'
-        });
+// --- FONCTION POUR APPLIQUER LES FILTRES ---
+function applyFilters() {
+    const genre = document.getElementById('filter-genre').value;
+    const year = document.getElementById('filter-year').value;
+    
+    // On appelle la fonction fetchMovies que tu as déjà, 
+    // elle va construire l'URL avec ?genre=...&year=...
+    fetchMovies(genre, year);
+}
 
-        if (response.ok) {
-            fetchMovies();
-        } else {
-            const result = await response.json();
-            alert(result.message);
-        }
-    }
+// --- FONCTION POUR RESET ---
+function resetFilters() {
+    document.getElementById('filter-genre').value = "";
+    document.getElementById('filter-year').value = "";
+    fetchMovies(); // Recharge tout
 }

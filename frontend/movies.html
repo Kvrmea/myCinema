@@ -2,93 +2,118 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>MY CINEMA - Gestion des Films</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>MY CINEMA - Catalogue</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #141414; color: white; }
-        .netflix-bg-red { background-color: #E50914; }
+        body { background-color: #0a0a0a; color: white; font-family: 'Inter', sans-serif; }
+        .netflix-red { color: #E50914; }
+        .title-premium { font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -0.05em; }
+        /* Masquer la scrollbar pour un look plus propre */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E50914; }
     </style>
 </head>
-<body>
-    <nav class="flex items-center justify-between px-10 py-5 bg-black sticky top-0 z-50">
-        <h1 class="text-3xl font-bold text-[#E50914] tracking-tighter">MY CINEMA</h1>
-        <ul class="flex gap-5 text-sm font-light text-gray-300">
-            <li><a href="index.html" class="hover:text-white">Accueil</a></li>
-            <li><a href="movies.html" class="hover:text-white font-bold text-white">Films</a></li>
-            <li><a href="rooms.html" class="hover:text-white">Salles</a></li>
+<body class="antialiased">
+
+    <nav class="p-6 flex justify-between items-center bg-black/80 sticky top-0 z-50 border-b border-white/5 backdrop-blur-md">
+        <h1 class="text-3xl font-black netflix-red tracking-tighter italic">MY CINEMA</h1>
+        <ul class="flex gap-8 text-[10px] font-black uppercase tracking-[0.2em]">
+            <li><a href="index.html" class="text-gray-500 hover:text-white transition">Accueil</a></li>
+            <li><a href="movies.html" class="netflix-red underline underline-offset-8 decoration-2">Films</a></li>
+            <li><a href="rooms.html" class="text-gray-500 hover:text-white transition">Salles</a></li>
+            <li><a href="planning.html" class="text-gray-500 hover:text-white transition">Planning</a></li>
         </ul>
     </nav>
-    <div class="flex flex-wrap gap-4 mb-10 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
-        <div class="flex flex-col gap-2">
-            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Genre</label>
-            <select id="filter-genre" onchange="applyFilters()" class="bg-black border border-zinc-700 text-white rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-red-600 transition">
-                <option value="">Tous les genres</option>
-                <option value="Action">Action</option>
-                <option value="Sci-Fi">Sci-Fi</option>
-                <option value="Drame">Drame</option>
-                <option value="Thriller">Thriller</option>
-                <option value="Horreur">Horreur</option>
-            </select>
-        </div>
 
-        <div class="flex flex-col gap-2">
-            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Année</label>
-            <select id="filter-year" onchange="applyFilters()" class="bg-black border border-zinc-700 text-white rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-red-600 transition">
-                <option value="">Toutes les années</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2020">Avant 2023</option>
-            </select>
-        </div>
-
-        <div class="flex items-end">
-            <button onclick="resetFilters()" class="text-sm text-gray-400 hover:text-white underline transition pb-3">
-                Réinitialiser
+    <main class="max-w-7xl mx-auto p-8">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
+            <div>
+                <p class="text-red-600 font-black text-[10px] uppercase tracking-[0.3em] mb-2">Bibliothèque numérique</p>
+                <h2 class="text-5xl title-premium">Catalogue</h2>
+            </div>
+            <button onclick="toggleModal()" class="bg-red-600 hover:bg-red-700 text-white px-10 py-5 rounded-[1.5rem] font-black italic uppercase tracking-tighter transition-all hover:scale-105 shadow-xl shadow-red-600/20">
+                + Ajouter un film
             </button>
-        </div>
-    </div>
+        </header>
 
-    <main class="px-10 py-10">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-bold">Gestion des Films</h2>
-            <button onclick="toggleModal()" class="netflix-bg-red px-4 py-2 rounded font-bold hover:bg-red-700 transition">+ Ajouter un film</button>
-        </div>
+        <section class="flex flex-wrap gap-4 mb-12 bg-zinc-900/50 p-6 rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-sm">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 px-2">Filtrer par Genre</label>
+                <select id="filter-genre" onchange="applyFilters()" class="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-red-600 transition text-sm appearance-none cursor-pointer">
+                    <option value="">Tous les genres</option>
+                    <option value="Action">Action</option>
+                    <option value="Science-Fiction">Science-Fiction</option>
+                    <option value="Drame">Drame</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Thriller">Thriller</option>
+                </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 px-2">Année de sortie</label>
+                <input type="number" id="filter-year" placeholder="Ex: 2024" oninput="applyFilters()" class="w-full bg-black border border-zinc-700 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-red-600 transition text-sm">
+            </div>
+            <div class="flex items-end pb-1">
+                <button onclick="resetFilters()" class="px-6 py-4 text-zinc-500 hover:text-white transition font-black uppercase text-[10px] tracking-widest">
+                    Réinitialiser
+                </button>
+            </div>
+        </section>
 
-        <div class="bg-zinc-900 rounded-lg overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-zinc-800 text-gray-400 uppercase text-xs">
-                        <th class="p-4">Titre</th>
-                        <th class="p-4">Genre</th>
-                        <th class="p-4">Année</th>
-                        <th class="p-4">Durée</th>
-                        <th class="p-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="movie-table-body">
-                    </tbody>
-            </table>
+        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+            <div class="animate-pulse bg-zinc-900 aspect-[2/3] rounded-[2rem]"></div>
+            <div class="animate-pulse bg-zinc-900 aspect-[2/3] rounded-[2rem]"></div>
+            <div class="animate-pulse bg-zinc-900 aspect-[2/3] rounded-[2rem]"></div>
+            <div class="animate-pulse bg-zinc-900 aspect-[2/3] rounded-[2rem]"></div>
+            <div class="animate-pulse bg-zinc-900 aspect-[2/3] rounded-[2rem]"></div>
         </div>
     </main>
 
-    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 p-8 rounded-lg w-full max-w-md border border-zinc-700">
-            <h3 class="text-xl font-bold mb-4">Nouveau Film</h3>
-            <form id="add-movie-form" class="space-y-4">
-                <input type="text" id="title" placeholder="Titre" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none focus:border-red-500" required>
-                <div class="flex gap-4">
-                    <input type="number" id="release_year" placeholder="Année" class="w-1/2 bg-zinc-800 p-2 rounded border border-zinc-600" required>
-                    <input type="number" id="duration" placeholder="Durée (min)" class="w-1/2 bg-zinc-800 p-2 rounded border border-zinc-600" required>
+    <div id="modal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+        <div class="bg-zinc-900 p-10 rounded-[2.5rem] w-full max-w-2xl border border-zinc-800 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 id="modal-title" class="text-3xl title-premium mb-8 uppercase">Nouveau Film</h3>
+            
+            <form id="add-movie-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Titre du film</label>
+                        <input type="text" id="title" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">URL de la Jaquette (TMDB)</label>
+                        <input type="text" id="poster_url" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition" placeholder="https://image.tmdb.org/...">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Année de sortie</label>
+                        <input type="number" id="release_year" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Durée (minutes)</label>
+                        <input type="number" id="duration" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Genre</label>
+                        <input type="text" id="genre" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Réalisateur</label>
+                        <input type="text" id="director" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition">
+                    </div>
                 </div>
-                <input type="text" id="genre" placeholder="Genre" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600">
-                <input type="text" id="director" placeholder="Réalisateur" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600">
-                <textarea id="description" placeholder="Description" class="w-full bg-zinc-800 p-2 rounded border border-zinc-600"></textarea>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Synopsis</label>
+                    <textarea id="description" rows="3" class="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-red-600 transition"></textarea>
+                </div>
                 
-                <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="toggleModal()" class="text-gray-400 hover:text-white">Annuler</button>
-                    <button type="submit" class="netflix-bg-red px-6 py-2 rounded font-bold">Enregistrer</button>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" onclick="toggleModal()" class="flex-1 px-4 py-4 rounded-xl font-bold text-gray-500 hover:text-white transition uppercase text-xs">Annuler</button>
+                    <button id="submit-btn" type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-xl font-black uppercase italic tracking-tighter transition shadow-lg shadow-red-600/20">
+                        Enregistrer
+                    </button>
                 </div>
             </form>
         </div>

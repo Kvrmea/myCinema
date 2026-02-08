@@ -1,49 +1,55 @@
 const API_URL = "http://localhost:8000/index.php?resource=screenings";
 
-
+// 1. GESTION DU MODAL
 function toggleModal() {
-    const modal = document.getElementById('screening-modal');
-    modal.classList.toggle('hidden');
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.classList.toggle('hidden');
+        if (!modal.classList.contains('hidden')) {
+            loadFormOptions();
+        } else {
+            resetForm();
+        }
+    }
 }
 
+// 2. CHARGEMENT ET RENDER DU PLANNING
 async function fetchPlanning() {
     try {
         const response = await fetch(API_URL);
         const screenings = await response.json();
-
         if (!Array.isArray(screenings)) return;
 
         const container = document.getElementById('planning-container');
         container.innerHTML = "";
 
-        // On filtre d'abord pour supprimer automatiquement les séances finies depuis 2h
         const filteredScreenings = screenings.filter(s => {
             const endTime = new Date(new Date(s.start_time).getTime() + 120 * 60000);
             return endTime > new Date();
         });
 
         if (filteredScreenings.length === 0) {
-            container.innerHTML = `<p class="text-gray-500 italic">Aucune séance à venir.</p>`;
+            container.innerHTML = `
+                <div class="text-center py-20 bg-zinc-900/30 rounded-3xl border-2 border-dashed border-zinc-800">
+                    <p class="text-zinc-500 text-xl italic font-medium">Aucune séance programmée pour le moment.</p>
+                </div>`;
             return;
         }
 
-        // On groupe par salle
         const groupedByRoom = filteredScreenings.reduce((acc, s) => {
             if (!acc[s.room_name]) acc[s.room_name] = [];
             acc[s.room_name].push(s);
             return acc;
         }, {});
 
-        // On boucle sur chaque salle pour créer les sections
         for (const roomName in groupedByRoom) {
-            // Création de l'entête de la salle
             container.innerHTML += `
-                <div class="mt-12 mb-8 flex items-center gap-4">
-                    <h2 class="text-3xl font-black text-white uppercase tracking-tighter italic">${roomName}</h2>
-                    <div class="h-[2px] flex-grow bg-gradient-to-r from-red-600 to-transparent"></div>
+                <div class="mt-16 mb-8 flex items-center gap-6">
+                    <h2 class="text-4xl font-black text-white uppercase tracking-tighter italic italic">${roomName}</h2>
+                    <div class="h-[1px] flex-grow bg-gradient-to-r from-red-600 via-red-600/20 to-transparent"></div>
                 </div>
-                <div class="space-y-12 border-l-2 border-zinc-800 ml-4 pl-10 pb-10">
-                    ${groupedByRoom[roomName].map(s => renderMyFriseCard(s)).join('')}
+                <div class="space-y-10 border-l border-zinc-800 ml-4 pl-10 pb-10">
+                    ${groupedByRoom[roomName].sort((a,b) => new Date(a.start_time) - new Date(b.start_time)).map(s => renderAdminCard(s)).join('')}
                 </div>
             `;
         }
@@ -52,230 +58,127 @@ async function fetchPlanning() {
     }
 }
 
-// (Frise) isolée pour rester propre
-function renderMyFriseCard(s) {
+function renderAdminCard(s) {
     const now = new Date();
     const startTime = new Date(s.start_time.replace(' ', 'T'));
-    const duration = 120;
-    const endTime = new Date(startTime.getTime() + duration * 60000);
-    
+    const endTime = new Date(startTime.getTime() + 120 * 60000);
     const isLive = now >= startTime && now <= endTime;
-    const isPast = now > endTime;
-
-    const dateFr = startTime.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
     const heure = startTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-    // Calcul de la progression pour la barre (en %)
-    const elapsed = Math.max(0, Math.min(100, ((now - startTime) / (duration * 60000)) * 100));
+    const dateFr = startTime.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    const elapsed = Math.max(0, Math.min(100, ((now - startTime) / (120 * 60000)) * 100));
 
     return `
-        <div class="relative ${isPast ? 'opacity-40' : ''}">
-            <div class="absolute -left-[51px] top-1 w-5 h-5 rounded-full ${isLive ? 'bg-green-500 animate-ping' : 'bg-red-600'} border-4 border-[#141414]"></div>
+        <div class="relative group">
+            <div class="absolute -left-[50.5px] top-2 w-5 h-5 rounded-full ${isLive ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)] animate-pulse' : 'bg-zinc-700'} border-4 border-[#141414]"></div>
             
-            <div class="mb-4 flex items-center gap-4">
-                <span class="text-sm font-bold uppercase ${isLive ? 'text-green-500' : 'text-red-600'} tracking-widest">${dateFr}</span>
-                ${isLive ? '<span class="bg-green-500 text-black text-[10px] font-black px-2 py-0.5 rounded">EN COURS</span>' : ''}
-            </div>
-
-            <div class="bg-zinc-900/80 border ${isLive ? 'border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.1)]' : 'border-zinc-800'} p-0 rounded-xl flex items-center overflow-hidden hover:bg-zinc-800 transition duration-300 group">
-                <div class="w-32 h-44 flex-shrink-0">
-                    <img src="${s.movie_poster}?t=${Date.now()}" alt="${s.movie_title}" class="w-full h-full object-cover">
+            <div class="bg-zinc-900/50 backdrop-blur-sm border ${isLive ? 'border-green-500/30 shadow-2xl shadow-green-500/5' : 'border-zinc-800/50'} p-0 rounded-2xl flex items-center overflow-hidden hover:border-zinc-600 transition-all duration-500">
+                <div class="w-28 h-40 flex-shrink-0 relative overflow-hidden">
+                    <img src="${s.movie_poster}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
                 </div>
 
-                <div class="flex flex-col flex-grow p-6">
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center gap-6">
-                            <div class="text-4xl font-black hour-glow tracking-tighter">${heure}</div>
-                            <div>
-                                <h3 class="text-2xl font-bold group-hover:text-red-500 transition-colors uppercase tracking-tight">${s.movie_title}</h3>
-                                <div class="flex gap-3 mt-2">
-                                    <span class="bg-zinc-800 text-gray-400 text-[10px] px-2 py-1 rounded font-bold">4K / ATMOS</span>
-                                </div>
+                <div class="flex-grow p-6 flex justify-between items-center">
+                    <div class="flex items-center gap-8">
+                        <div class="text-center">
+                            <span class="block text-xs font-black text-red-600 uppercase mb-1">${dateFr}</span>
+                            <span class="text-4xl font-black text-white tracking-tighter">${heure}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white uppercase tracking-tight group-hover:text-red-500 transition">${s.movie_title}</h3>
+                            <div class="flex gap-2 mt-2">
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 uppercase tracking-widest border border-zinc-700">Premium Session</span>
+                                ${isLive ? '<span class="text-[10px] font-black px-2 py-0.5 rounded bg-green-500/10 text-green-500 uppercase tracking-widest border border-green-500/20">Live</span>' : ''}
                             </div>
                         </div>
-                        
-                        <div class="flex gap-4">
-                            <button onclick="editScreening(${s.id})" class="hover:scale-120 transition hover:text-blue-500 text-xl">✏️</button>
-                            <button onclick="deleteScreening(${s.id})" class="hover:scale-120 transition hover:text-red-500 text-xl">🗑️</button>
-                        </div>
                     </div>
-                    
-                    ${isLive ? `
-                    <div class="mt-6">
-                        <div class="flex justify-between text-[10px] text-gray-500 mb-1 font-bold">
-                            <span>DÉBUT</span>
-                            <span>PROGRESSION (${Math.round(elapsed)}%)</span>
-                            <span>FIN</span>
-                        </div>
-                        <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-green-500 h-full transition-all duration-1000" style="width: ${elapsed}%"></div>
-                        </div>
-                    </div>` : ''}
+
+                    <div class="flex gap-3">
+                        <button onclick="editScreening(${s.id})" class="p-3 bg-zinc-800 hover:bg-white hover:text-black rounded-xl transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        <button onclick="deleteScreening(${s.id})" class="p-3 bg-zinc-800 hover:bg-red-600 text-white rounded-xl transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+            
+            ${isLive ? `
+            <div class="absolute bottom-0 left-28 right-0 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div class="bg-green-500 h-full shadow-[0_0_10px_rgba(34,197,94,0.5)]" style="width: ${elapsed}%"></div>
+            </div>` : ''}
+        </div>`;
 }
 
-document.addEventListener('DOMContentLoaded', fetchPlanning);
-
-// Charge dynamiquement les films et les salles depuis ton API
+// 3. LOGIQUE FORMULAIRE (IDs HTML Respectés)
 async function loadFormOptions() {
     try {
-        const [moviesRes, roomsRes] = await Promise.all([
+        const [mRes, rRes] = await Promise.all([
             fetch("http://localhost:8000/index.php?resource=movies"),
             fetch("http://localhost:8000/index.php?resource=rooms")
         ]);
-        
-        const movies = await moviesRes.json();
-        const rooms = await roomsRes.json();
-
-        // On remplit les listes déroulantes
-        document.getElementById('movie-select').innerHTML = movies.map(m => 
-            `<option value="${m.id}">${m.title} (${m.release_year})</option>`).join('');
-
-        document.getElementById('room-select').innerHTML = rooms.map(r => 
-            `<option value="${r.id}">${r.name} (${r.capacity} places)</option>`).join('');
-            
-    } catch (err) {
-        console.error("Erreur lors du chargement des options :", err);
-    }
+        const movies = await mRes.json();
+        const rooms = await rRes.json();
+        document.getElementById('movie_id').innerHTML = movies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+        document.getElementById('room_id').innerHTML = rooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+    } catch (e) { console.error(e); }
 }
 
-// Gère l'envoi du formulaire
-document.getElementById('screening-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // On récupère la date du formulaire (ex: 2026-02-05T20:00)
-    const dateInput = document.getElementById('screening-date').value;
-    
-    // FIX : On remplace le 'T' par un espace pour MySQL
-    const formattedDate = dateInput.replace('T', ' ');
+const form = document.getElementById('add-screening-form');
+if (form) {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            movie_id: document.getElementById('movie_id').value,
+            room_id: document.getElementById('room_id').value,
+            start_time: document.getElementById('start_time').value.replace('T', ' ')
+        };
+        const method = editMode ? 'PUT' : 'POST';
+        if (editMode) data.id = currentEditId;
 
-    const formData = {
-        movie_id: document.getElementById('movie-select').value,
-        room_id: document.getElementById('room-select').value,
-        start_time: formattedDate // On envoie la date propre
-    };
-
-    console.log("Données envoyées :", formData);
-
-    try {
-        const response = await fetch("http://localhost:8000/index.php?resource=screenings", {
-            method: 'POST',
+        const res = await fetch(API_URL, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(data)
         });
-
-        if (response.ok) {
-            toggleModal();
-            // On attend un petit peu que le SQL finisse avant de rafraîchir
-            setTimeout(() => {
-                fetchPlanning();
-            }, 500);
-            alert("Séance programmée avec succès !");
-        } else {
-            alert("Erreur lors de l'enregistrement.");
-        }
-    } catch (err) {
-        console.error("Erreur POST :", err);
-    }
-});
-
-async function deleteScreening(id) {
-    if (!confirm("Supprimer cette séance ?")) return;
-
-    try {
-        const response = await fetch(`http://localhost:8000/index.php?resource=screenings&id=${id}`, {
-            method: 'DELETE'
-        });
-        if (response.ok) {
-            fetchPlanning();
-        }
-    } catch (err) {
-        console.error("Erreur suppression:", err);
-    }
+        if (res.ok) { toggleModal(); fetchPlanning(); }
+    });
 }
-
-// let editId = null;
-
-// async function editScreening(id) {
-//     toggleModal();
-//     loadFormOptions();
-//     editId = id;
-// }
 
 let editMode = false;
 let currentEditId = null;
 
 async function editScreening(id) {
-    try {
-        // On récupère toutes les séances pour trouver la bonne
-        const response = await fetch(API_URL);
-        const screenings = await response.json();
-        const s = screenings.find(item => item.id == id);
-
-        if (s) {
-            editMode = true;
-            currentEditId = id;
-
-            // On ouvre le modal
-            toggleModal(); 
-
-            // On remplit les champs du formulaire
-            // Attention : assure-toi que les ID correspondent à ton HTML
+    const res = await fetch(API_URL);
+    const screenings = await res.json();
+    const s = screenings.find(item => item.id == id);
+    if (s) {
+        editMode = true;
+        currentEditId = id;
+        toggleModal();
+        setTimeout(() => {
             document.getElementById('movie_id').value = s.movie_id;
             document.getElementById('room_id').value = s.room_id;
-            
-            // Formatage de la date pour l'input datetime-local (YYYY-MM-DDTHH:MM)
-            const dateInput = s.start_time.replace(' ', 'T').substring(0, 16);
-            document.getElementById('start_time').value = dateInput;
-
-            // On change le titre et le bouton du modal pour le look
+            document.getElementById('start_time').value = s.start_time.replace(' ', 'T').substring(0, 16);
             document.getElementById('modal-title').innerText = "Modifier la séance";
             document.getElementById('submit-btn').innerText = "Mettre à jour";
-        }
-    } catch (error) {
-        console.error("Erreur lors de la récupération des infos :", error);
+        }, 100);
     }
 }
 
-document.getElementById('add-screening-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const data = {
-        movie_id: document.getElementById('movie_id').value,
-        room_id: document.getElementById('room_id').value,
-        start_time: document.getElementById('start_time').value
-    };
-
-    // Si on est en mode édition, on ajoute l'ID et on change la méthode
-    const method = editMode ? 'PUT' : 'POST';
-    if (editMode) data.id = currentEditId;
-
-    try {
-        const response = await fetch(API_URL, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            alert(editMode ? "Séance mise à jour !" : "Séance ajoutée !");
-            toggleModal();
-            resetForm();
-            fetchPlanning();
-        }
-    } catch (error) {
-        console.error("Erreur :", error);
-    }
-});
-
-// Fonction pour remettre le formulaire à l'état "Ajout"
 function resetForm() {
     editMode = false;
     currentEditId = null;
-    document.getElementById('add-screening-form').reset();
+    if(form) form.reset();
     document.getElementById('modal-title').innerText = "Programmer une séance";
-    document.getElementById('submit-btn').innerText = "Confirmer la programmation";
+    document.getElementById('submit-btn').innerText = "Confirmer";
 }
+
+async function deleteScreening(id) {
+    if (confirm("Supprimer cette séance ?")) {
+        await fetch(`${API_URL}&id=${id}`, { method: 'DELETE' });
+        fetchPlanning();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', fetchPlanning);
