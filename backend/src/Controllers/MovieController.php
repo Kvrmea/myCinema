@@ -13,7 +13,9 @@ class MovieController {
 
     public function list() {
         $movie = new Movie($this->db);
-        $stmt = $movie->readAll();
+        $genre = $_GET['genre'] ?? null;
+        $year = $_GET['year'] ?? null;
+        $stmt = $movie->readAll($genre, $year); 
         $num = $stmt->rowCount();
 
         if ($num > 0) {
@@ -23,41 +25,27 @@ class MovieController {
             }
             echo json_encode($movies_arr, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } else {
-            echo json_encode(["message" => "Aucun film trouvé."]);
+            echo json_encode([]);
         }
     }
 
     public function create() {
-        // On récupère le contenu de la requête (POST)
         $data = json_decode(file_get_contents("php://input"), true);
 
         if (!empty($data['title']) && !empty($data['duration'])) {
             $movie = new Movie($this->db);
             if ($movie->create($data)) {
-                http_response_code(201); // Created
+                http_response_code(201);
                 echo json_encode(["message" => "Film ajouté avec succès !"], JSON_UNESCAPED_UNICODE);
             } else {
-                http_response_code(503); // Service Unavailable
+                http_response_code(503);
                 echo json_encode(["message" => "Impossible d'ajouter le film."], JSON_UNESCAPED_UNICODE);
             }
         } else {
-            http_response_code(400); // Bad Request
+            http_response_code(400);
             echo json_encode(["message" => "Données incomplètes."], JSON_UNESCAPED_UNICODE);
         }
     }
-
-    // public function delete() {
-    //     if (isset($_GET['id'])) {
-    //         $movie = new Movie($this->db);
-    //         if ($movie->delete($_GET['id'])) {
-    //             http_response_code(200);
-    //             echo json_encode(["message" => "Film supprimé."], JSON_UNESCAPED_UNICODE);
-    //         } else {
-    //             http_response_code(400);
-    //             echo json_encode(["message" => "Suppression impossible (film lié à une séance)."], JSON_UNESCAPED_UNICODE);
-    //         }
-    //     }
-    // }
 
     public function delete() {
         $id = $_GET['id'] ?? null;
@@ -69,8 +57,7 @@ class MovieController {
                 echo json_encode(["message" => "Film supprimé."], JSON_UNESCAPED_UNICODE);
             } else {
                 http_response_code(400);
-                // On affiche l'ID pour vérifier s'il est vide ou incorrect
-                echo json_encode(["message" => "Échec SQL pour l'ID : " . $id], JSON_UNESCAPED_UNICODE);
+                echo json_encode(["message" => "Échec SQL ou film lié à une séance."], JSON_UNESCAPED_UNICODE);
             }
         } else {
             http_response_code(400);

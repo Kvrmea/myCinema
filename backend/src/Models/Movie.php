@@ -17,10 +17,23 @@ class Movie {
         $this->conn = $db;
     }
 
-    // Méthode pour récupérer tous les films
-    public function readAll() {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
+    // Méthode pour récupérer tous les films et filtrage
+    public function readAll($genre = null, $year = null) {
+        $query = "SELECT * FROM movies WHERE 1=1";
+        
+        if ($genre) {
+            $query .= " AND genre = :genre";
+        }
+        if ($year) {
+            $query .= " AND release_year = :year";
+        }
+
+        $query .= " ORDER BY id DESC";
         $stmt = $this->conn->prepare($query);
+
+        if ($genre) $stmt->bindValue(':genre', trim($genre));
+        if ($year) $stmt->bindValue(':year', $year);
+
         $stmt->execute();
         return $stmt;
     }

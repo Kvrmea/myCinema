@@ -18,6 +18,37 @@
             <li><a href="rooms.html" class="hover:text-white">Salles</a></li>
         </ul>
     </nav>
+    <div class="flex flex-wrap gap-4 mb-10 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Genre</label>
+            <select id="filter-genre" onchange="applyFilters()" class="bg-black border border-zinc-700 text-white rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-red-600 transition">
+                <option value="">Tous les genres</option>
+                <option value="Action">Action</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Drame">Drame</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horreur">Horreur</option>
+            </select>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Année</label>
+            <select id="filter-year" onchange="applyFilters()" class="bg-black border border-zinc-700 text-white rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-red-600 transition">
+                <option value="">Toutes les années</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2020">Avant 2023</option>
+            </select>
+        </div>
+
+        <div class="flex items-end">
+            <button onclick="resetFilters()" class="text-sm text-gray-400 hover:text-white underline transition pb-3">
+                Réinitialiser
+            </button>
+        </div>
+    </div>
 
     <main class="px-10 py-10">
         <div class="flex justify-between items-center mb-8">
