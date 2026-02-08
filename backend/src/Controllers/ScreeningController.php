@@ -53,4 +53,33 @@ class ScreeningController {
         }
     }
 
+    public function delete() {
+        $id = $_GET["id"] ?? null;
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["message" => "ID manquant"]);
+            return;
+        }
+
+        $query = "DELETE FROM screenings WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        if ($stmt->execute([':id' => $id])) {
+            echo json_encode(["message" => "Séance supprimée"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["message" => "Erreur suppression"]);
+        }
+    }
+
+    public function update($data) {
+        $query = "UPDATE screenings SET movie_id = :m, room_id = :r, start_time = :s WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        $success = $stmt->execute([
+            ':m'  => $data['movie_id'],
+            ':r'  => $data['room_id'],
+            ':s'  => $data['start_time'],
+            ':id' => $data['id']
+        ]);
+        echo json_encode(["message" => $success ? "Mis à jour" : "Erreur"]);
+    }
 }

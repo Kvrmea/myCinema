@@ -25,7 +25,13 @@ async function fetchPlanning() {
             return;
         }
 
-        screenings.forEach(s => {
+        // On ne garde que les séances qui finissent après
+        const filteredScreenings = screenings.filter(s => {
+            const endTime = new Date(new Date(s.start_time).getTime() + 120 * 60000); // Fin après 2h
+            return endTime > new Date();
+        });
+
+        filteredScreenings.forEach(s => {
             const now = new Date();
             const startTime = new Date(s.start_time.replace(' ', 'T'));
             const duration = 120; // On part sur une base de 2h par film
@@ -68,8 +74,8 @@ async function fetchPlanning() {
                                 </div>
                                 
                                 <div class="flex gap-4">
-                                    <button class="hover:scale-110 transition">✏️</button>
-                                    <button class="hover:scale-110 transition text-red-500">🗑️</button>
+                                    <button onclick="editScreening(${s.id})" class="hover:scale-120 transition hover:text-blue-500">✏️</button>
+                                    <button onclick="deleteScreening(${s.id})" class="hover:scale-120 transition hover:text-red-500">🗑️</button>
                                 </div>
                             </div>
                             
@@ -158,3 +164,26 @@ document.getElementById('screening-form').addEventListener('submit', async (e) =
         console.error("Erreur POST :", err);
     }
 });
+
+async function deleteScreening(id) {
+    if (!confirm("Supprimer cette séance ?")) return;
+
+    try {
+        const response = await fetch(`http://localhost:8000/index.php?resource=screenings&id=${id}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            fetchPlanning();
+        }
+    } catch (err) {
+        console.error("Erreur suppression:", err);
+    }
+}
+
+let editId = null;
+
+async function editScreening(id) {
+    toggleModal();
+    loadFormOptions();
+    editId = id;
+}

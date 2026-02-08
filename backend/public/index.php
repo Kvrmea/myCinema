@@ -47,6 +47,11 @@ switch($resource) {
         } elseif ($method === 'POST') {
             $data = json_decode(file_get_contents("php://input"), true);
             $controller->create($data);
+        } elseif ($method === 'DELETE') {
+            $controller->delete();
+        } elseif ($method === 'PUT') {
+            $data = json_decode(file_get_contents("php://input"), true);
+            $controller->update($data);
         }
         break;
 
