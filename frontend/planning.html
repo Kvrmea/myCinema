@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>MY CINEMA - Planning</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,6 +12,11 @@
         .netflix-bg-red { background-color: #E50914; }
         .hour-glow { text-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
         .timeline-line { border-left: 2px solid #333; }
+        
+        /* Style pour l'input datetime-local pour qu'il soit sombre */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
     </style>
 </head>
 <body>
@@ -32,7 +38,7 @@
                 <h2 class="text-4xl font-bold mb-2">Programmation</h2>
                 <p class="text-gray-400">Gérez les séances et les horaires de diffusion.</p>
             </div>
-            <button class="netflix-bg-red px-6 py-3 rounded font-bold hover:bg-red-700 transition shadow-lg">
+            <button onclick="toggleModal(); loadFormOptions();" class="netflix-bg-red px-6 py-3 rounded font-bold hover:bg-red-700 transition shadow-lg">
                 + PROGRAMMER UNE SÉANCE
             </button>
         </header>
@@ -40,6 +46,43 @@
         <div id="planning-container" class="relative timeline-line ml-4 pl-8 space-y-12">
             </div>
     </main>
+
+    <div id="screening-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[100] backdrop-blur-sm">
+        <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-white flex items-center gap-2">
+                <span class="w-2 h-8 bg-red-600 rounded-full"></span>
+                Programmer une séance
+            </h2>
+            
+            <form id="screening-form" class="space-y-5">
+                <div>
+                    <label class="block text-zinc-400 text-sm mb-2">Choisir le film</label>
+                    <select id="movie-select" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-600 outline-none transition" required>
+                        </select>
+                </div>
+
+                <div>
+                    <label class="block text-zinc-400 text-sm mb-2">Choisir la salle</label>
+                    <select id="room-select" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-600 outline-none transition" required>
+                        </select>
+                </div>
+
+                <div>
+                    <label class="block text-zinc-400 text-sm mb-2">Date et heure de début</label>
+                    <input type="datetime-local" id="screening-date" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-600 outline-none transition" required>
+                </div>
+                
+                <div class="flex gap-3 pt-6">
+                    <button type="button" onclick="toggleModal()" class="flex-1 px-6 py-3 border border-zinc-700 text-zinc-300 rounded-xl font-bold hover:bg-zinc-800 transition">
+                        Annuler
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-900/20 transition">
+                        Confirmer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="js/planning.js"></script>
 </body>

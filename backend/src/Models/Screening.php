@@ -13,6 +13,7 @@ class Screening {
                     s.id, 
                     s.start_time, 
                     m.title AS movie_title, 
+                    m.image_url AS movie_poster,
                     r.name AS room_name 
                 FROM screenings s
                 INNER JOIN movies m ON s.movie_id = m.id

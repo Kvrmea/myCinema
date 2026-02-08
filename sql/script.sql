@@ -60,3 +60,37 @@ CREATE TABLE IF NOT EXISTS screenings (
 );
 
 INSERT INTO screenings (movie_id, room_id, start_time) VALUES (1, 1, '2026-02-05 20:30:00');
+
+
+USE my_cinema;
+
+-- 1. On désactive temporairement les vérifications pour pouvoir tout vider sans erreur
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE screenings;
+TRUNCATE TABLE movies;
+TRUNCATE TABLE rooms;
+
+-- 2. On s'assure que tes salles de test existent (car screenings en a besoin)
+INSERT INTO rooms (id, name, capacity, image_url) VALUES 
+(1, 'LUXE', 50, 'https://images.unsplash.com/photo-1517604401157-538a9663ecf4'),
+(2, 'Salle IMAX', 120, 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba');
+
+-- 3. On insère les films avec les bonnes colonnes
+INSERT INTO movies (id, title, duration, genre, description, release_year, image_url) VALUES 
+(1, 'Inception', 148, 'Sci-Fi', 'Dom Cobb est un voleur expérimenté.', 2010, 'https://image.tmdb.org/t/p/w500/9gk7Fn9sVAsS9696G1o3oP0mX0W.jpg'),
+(2, 'The Dark Knight', 152, 'Action', 'Le combat de Batman contre le Joker.', 2008, 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDp9s1D3Pmc9G9SzkRBC.jpg'),
+(3, 'Interstellar', 169, 'Aventure', 'Un voyage spatial pour sauver l\'humanité.', 2014, 'https://image.tmdb.org/t/p/w500/gEU2QniE6EwfVDxjTEreqq9hcC9.jpg'),
+(4, 'Matrix', 136, 'Action', 'La vérité sur la réalité.', 1999, 'https://image.tmdb.org/t/p/w500/f89U3Y9L9vwpkPK9Gws9URpCjYw.jpg'),
+(5, 'Gladiator', 155, 'Drame', 'Un général romain cherche vengeance.', 2000, 'https://image.tmdb.org/t/p/w500/27oJvHUYpS97wh397QY788pt0OX.jpg');
+
+-- 4. On insère les séances (screenings)
+INSERT INTO screenings (movie_id, room_id, start_time) VALUES 
+(4, 2, DATE_SUB(NOW(), INTERVAL 4 HOUR)), 
+(1, 1, DATE_SUB(NOW(), INTERVAL 30 MINUTE)), 
+(2, 2, DATE_ADD(NOW(), INTERVAL 3 HOUR)), 
+(3, 1, DATE_ADD(NOW(), INTERVAL 6 HOUR)), 
+(5, 2, DATE_ADD(NOW(), INTERVAL 24 HOUR));
+
+-- 5. On réactive les vérifications
+SET FOREIGN_KEY_CHECKS = 1;

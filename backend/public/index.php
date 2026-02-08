@@ -42,7 +42,12 @@ switch($resource) {
     
     case 'screenings':
         $controller = new ScreeningController($db); 
-        if ($method === 'GET') $controller->list();
+        if ($method === 'GET') {
+            $controller->list();
+        } elseif ($method === 'POST') {
+            $data = json_decode(file_get_contents("php://input"), true);
+            $controller->create($data);
+        }
         break;
 
     default:
