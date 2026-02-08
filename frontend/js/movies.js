@@ -159,9 +159,15 @@ function resetForm() {
 
 // --- INITIALISATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    const user = checkPermissions();
+    const addBtn = document.getElementById('add-movie-btn');
+    
+    if (addBtn && (!user || user.role !== 'admin')) {
+        addBtn.style.display = 'none';
+    }
+    
     fetchMovies();
 });
-
 // --- FONCTION POUR APPLIQUER LES FILTRES ---
 function applyFilters() {
     const genre = document.getElementById('filter-genre').value;
@@ -178,3 +184,40 @@ function resetFilters() {
     document.getElementById('filter-year').value = "";
     fetchMovies(); // Recharge tout
 }
+
+function checkPermissions() {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+        // Optionnel : Rediriger vers login si pas connecté
+        // window.location.href = 'login.html';
+        return null;
+    }
+    return JSON.parse(userData);
+}
+
+// Modifie ta boucle forEach dans fetchMovies :
+movies.forEach(movie => {
+    const user = checkPermissions();
+    const isAdmin = user && user.role === 'admin';
+
+    // On ne génère les boutons que si l'utilisateur est admin
+    const adminButtons = isAdmin ? `
+        <div class="flex gap-2">
+            <button onclick="editMovie(${movie.id})" class="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase hover:bg-red-600 hover:text-white transition">Modifier</button>
+            <button onclick="deleteMovie(${movie.id})" class="bg-zinc-800/90 text-white p-3 rounded-xl hover:bg-red-600 transition">🗑️</button>
+        </div>
+    ` : `
+        <button class="w-full bg-red-600 text-white py-3 rounded-xl font-black text-[10px] uppercase hover:bg-red-700 transition">Réserver une place</button>
+    `;
+
+    grid.innerHTML += `
+        <div class="group relative ...">
+            <img src="${posterUrl}" ...>
+            <div class="absolute ... p-6">
+                <h3 class="..."> ${movie.title} </h3>
+                <p class="..."> ${movie.genre} </p>
+                ${adminButtons}
+            </div>
+        </div>
+    `;
+});
